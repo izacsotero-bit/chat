@@ -111,4 +111,4 @@ def info():
     d=load(); u=request.args.get('user','')
     return jsonify({"aviso":d.get("aviso",""),"premium": u in d["premium"],"meus_avatars": d["avatars"].get(u,[]),"is_adm": u=="izac"})
 
-if __name__=='__main__': app.run(host='0.0.0.0', port=8000)
+if __name__=='__main__': app.run(host='0.0.0.0', port=int(__import__('os').environ.get('PORT', 8000)))
