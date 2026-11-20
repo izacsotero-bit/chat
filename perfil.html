@@ -2,7 +2,48 @@
 <style>body{margin:0;font-family:Arial;background:linear-gradient(180deg,#7dd8ff,#a8f0c8);padding:15px}.card{max-width:380px;margin:20px auto;padding:20px;background:rgba(255,255,255,.7);border-radius:24px;text-align:center}input,select{width:100%;padding:12px;border-radius:14px;border:1px solid #b8e8d0;margin:6px 0}button{width:100%;padding:13px;border:none;border-radius:14px;font-weight:900;color:#fff;background:#00b96f;margin-top:8px}.desbloq{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.desbloq button{width:55px;height:55px;background:#fff;color:#000;font-size:28px}.desbloq button.sel{border:3px solid #00b96f}</style>
 <script>if(!sessionStorage.getItem('chatUser')) location.href='login.html';</script></head>
 <body><div class="card"><div id="preview" style="font-size:70px">🐠</div><h2 id="nome"></h2><p id="selo"></p>
-<label>Avatar normal</label><select id="avatar"><option>🐠</option><option>🦋</option><option>🐢</option><option>🌸</option><option>👾</option><option>🦊</option><option>🐲</option><option>⭐</option></select>
+<label>Avatar normal</label>
+<!-- AVATAR FOTO DA GALERIA -->
+<div style="text-align:center;">
+  <img id="preview-avatar" src="https://api.dicebear.com/9.x/adventurer/svg?seed=Felix" style="width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid #00ff88;background:#fff;">
+  <br>
+  <label for="input-foto" style="background:#00ff88;color:#000;padding:10px 18px;border-radius:20px;font-weight:bold;cursor:pointer;display:inline-block;margin-top:10px;">📸 Escolher foto da galeria</label>
+  <input type="file" id="input-foto" accept="image/*" style="display:none;">
+  <input type="hidden" id="avatar" value="">
+</div>
+<script>
+const inputFoto = document.getElementById('input-foto');
+const preview = document.getElementById('preview-avatar');
+const avatarInput = document.getElementById('avatar');
+const salva = localStorage.getItem('meu_avatar');
+if(salva){ preview.src = salva; if(avatarInput) avatarInput.value = salva; }
+if(inputFoto){
+  inputFoto.addEventListener('change', function(){
+    const file = this.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e){
+      const img = new Image();
+      img.onload = function(){
+        const canvas = document.createElement('canvas');
+        const size = 150;
+        canvas.width = size; canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        const s = Math.min(img.width, img.height);
+        ctx.drawImage(img, (img.width-s)/2, (img.height-s)/2, s, s, 0, 0, size, size);
+        const final = canvas.toDataURL('image/jpeg', 0.8);
+        preview.src = final;
+        if(avatarInput) avatarInput.value = final;
+        localStorage.setItem('meu_avatar', final);
+        alert('Foto salva! ✅');
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+</script>
+
 <div id="boxDesbloq" style="display:none"><label>🎁 Avatares Desbloqueados por Codigo</label><div class="desbloq" id="desbloq"></div><p>👆 Clica em um pra usar</p></div>
 <label>Cor do nome</label><input id="cor" type="color" value="#008a5c">
 <label>Bio</label><input id="bio" placeholder="Bio">
