@@ -1,0 +1,18 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ADM - E6s</title>
+<style>@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap');*{box-sizing:border-box}body{margin:0;font-family:'Nunito',Arial;background:linear-gradient(180deg,#1a1a2e,#16213e);color:#fff;padding:15px}.card{max-width:420px;margin:10px auto;padding:18px;background:rgba(255,255,255,.12);border:1px solid #fff;border-radius:20px}input,select{width:100%;padding:12px;border-radius:12px;border:none;margin:6px 0}button{width:100%;padding:12px;border:none;border-radius:12px;font-weight:900;color:#fff;background:linear-gradient(180deg,#ffd700,#ff8c00);margin-top:6px;cursor:pointer}.red{background:linear-gradient(180deg,#ff5a5a,#c00)}a{color:#7dd8ff}label{font-size:12px;opacity:.8}</style>
+<script>if(sessionStorage.getItem('chatUser')!=='izac'){alert('Só o ADM!');location.href='login.html'}</script></head>
+<body><div class="card"><h2>👑 Painel ADM - Izac</h2><a href="index.html">← Voltar</a>
+<h3>📢 Aviso Global</h3><input id="aviso" placeholder="Ex: Live hoje às 20h!"><button onclick="aviso()">Enviar Aviso Global</button>
+<h3>🎁 Criar Código</h3><input id="codigo" placeholder="Código ex: AERO100"><select id="tipo"><option value="premium">Premium 👑</option><option value="avatar">Avatar desbloqueável</option></select><input id="valor" placeholder="Se avatar, ex: 🦄 ou link da foto">
+<label>⏰ Tempo pra expirar (minutos) - 0 = nunca expira</label><input id="minutos" type="number" value="60">
+<label>👥 Quantas pessoas podem usar? - 1 = só 1 pessoa</label><input id="max" type="number" value="5">
+<button onclick="codigo()">Criar Código</button>
+<h3>👑 Dar / Tirar Premium</h3><input id="userP" placeholder="Usuário ex: amigo1"><button onclick="darPremium()">Dar Premium 👑</button><button class="red" onclick="tirarPremium()">Tirar Premium</button>
+<p id="msg"></p></div>
+<script>
+async function admPost(acao, extra={}){let r=await fetch('/api/adm',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({adm:'izac',acao,...extra})});let d=await r.json();document.getElementById('msg').textContent=d.ok?'✅ Feito!':('❌ '+d.msg);return d}
+function aviso(){admPost('aviso',{texto:document.getElementById('aviso').value})}
+function codigo(){admPost('criar_codigo',{codigo:document.getElementById('codigo').value.toUpperCase(),tipo:document.getElementById('tipo').value,valor:document.getElementById('valor').value,minutos:document.getElementById('minutos').value,max_uses:document.getElementById('max').value})}
+function darPremium(){admPost('dar_premium',{user:document.getElementById('userP').value.toLowerCase()})}
+function tirarPremium(){admPost('tirar_premium',{user:document.getElementById('userP').value.toLowerCase()})}
+</script></body></html>

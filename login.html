@@ -1,0 +1,34 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Login - Chat E6s</title>
+<style>@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap');*{box-sizing:border-box}body{margin:0;font-family:'Nunito',Arial;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#7dd8ff,#a8f0c8 45%,#e6ffb0);overflow:hidden}.bubble{position:absolute;bottom:-50px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#fff,rgba(255,255,255,.2));border:1px solid #fff;animation:subir linear infinite}@keyframes subir{to{transform:translateY(-110vh)}}.card{position:relative;z-index:2;width:90%;max-width:360px;padding:22px;background:rgba(255,255,255,.6);border:1.5px solid #fff;border-radius:24px;backdrop-filter:blur(12px);text-align:center;box-shadow:0 10px 30px rgba(0,100,70,.25)}.card h1{margin:0;color:#fff;font-size:26px;text-shadow:0 2px 0 #2aa876}.tabs{display:flex;gap:8px;margin:14px 0}.tabs button{flex:1;padding:10px;border:none;border-radius:12px;font-weight:900;cursor:pointer;background:rgba(255,255,255,.7)}.tabs button.ativo{background:#00b96f;color:#fff}input{width:100%;padding:13px;border-radius:14px;border:1.5px solid #b8e8d0;background:#fff;margin:6px 0}button.entrar{width:100%;padding:13px;border:none;border-radius:14px;font-weight:900;color:#fff;font-size:16px;background:linear-gradient(180deg,#5ee8a5,#00b96f 50%,#00995e);box-shadow:0 4px 0 #006e43}#msg{font-size:13px;min-height:18px;margin-top:8px}.ok{color:#008a5c}.erro{color:#d00}</style></head>
+<body><div class="bubble" style="left:10%;width:35px;height:35px;animation-duration:9s"></div><div class="bubble" style="left:80%;width:45px;height:45px;animation-duration:11s"></div>
+<div class="card"><h1>🫧 Chat do E6s 🐠</h1><p style="font-size:12px;color:#0a5c42">✦ Frutiger Aero • Tá ON ✦</p>
+<div class="tabs"><button id="tabLogin" class="ativo" onclick="mudar('login')">Entrar</button><button id="tabCriar" onclick="mudar('criar')">Criar Conta ✨</button></div>
+<input id="user" placeholder="👤 Usuário">
+<input id="pass" type="password" placeholder="🔑 Senha">
+<input id="pass2" type="password" placeholder="🔑 Repetir senha" style="display:none">
+<button class="entrar" id="btn" onclick="acao()">Entrar ➤</button>
+<div id="msg"></div></div>
+<script>
+let modo='login';
+function mudar(m){modo=m;document.getElementById('tabLogin').classList.toggle('ativo',m==='login');document.getElementById('tabCriar').classList.toggle('ativo',m==='criar');document.getElementById('pass2').style.display=m==='criar'?'block':'none';document.getElementById('btn').textContent=m==='login'?'Entrar ➤':'Criar Conta ✨';document.getElementById('msg').textContent='';}
+async function acao(){
+  let u=document.getElementById('user').value.trim().toLowerCase();
+  let p=document.getElementById('pass').value.trim();
+  let p2=document.getElementById('pass2').value.trim();
+  let msg=document.getElementById('msg');
+  if(!u||!p){msg.className='erro';msg.textContent='❌ Preenche usuário e senha!';return;}
+  if(modo==='criar'){
+    if(p!==p2){msg.className='erro';msg.textContent='❌ As senhas não batem!';return;}
+    let r=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user:u,pass:p})});
+    let d=await r.json();
+    if(d.ok){msg.className='ok';msg.textContent='✅ Conta criada! Agora é só entrar.';mudar('login');}
+    else{msg.className='erro';msg.textContent='❌ '+d.msg;}
+  } else {
+    let r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user:u,pass:p})});
+    let d=await r.json();
+    if(d.ok){sessionStorage.setItem('chatUser',u);location.href='index.html';}
+    else{msg.className='erro';msg.textContent='❌ '+d.msg;}
+  }
+}
+document.getElementById('pass').addEventListener('keydown',e=>{if(e.key==='Enter')acao()});
+</script></body></html>

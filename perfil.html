@@ -1,0 +1,41 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Perfil</title>
+<style>body{margin:0;font-family:Arial;background:linear-gradient(180deg,#7dd8ff,#a8f0c8);padding:15px}.card{max-width:380px;margin:20px auto;padding:20px;background:rgba(255,255,255,.7);border-radius:24px;text-align:center}input,select{width:100%;padding:12px;border-radius:14px;border:1px solid #b8e8d0;margin:6px 0}button{width:100%;padding:13px;border:none;border-radius:14px;font-weight:900;color:#fff;background:#00b96f;margin-top:8px}.desbloq{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.desbloq button{width:55px;height:55px;background:#fff;color:#000;font-size:28px}.desbloq button.sel{border:3px solid #00b96f}</style>
+<script>if(!sessionStorage.getItem('chatUser')) location.href='login.html';</script></head>
+<body><div class="card"><div id="preview" style="font-size:70px">🐠</div><h2 id="nome"></h2><p id="selo"></p>
+<label>Avatar normal</label><select id="avatar"><option>🐠</option><option>🦋</option><option>🐢</option><option>🌸</option><option>👾</option><option>🦊</option><option>🐲</option><option>⭐</option></select>
+<div id="boxDesbloq" style="display:none"><label>🎁 Avatares Desbloqueados por Codigo</label><div class="desbloq" id="desbloq"></div><p>👆 Clica em um pra usar</p></div>
+<label>Cor do nome</label><input id="cor" type="color" value="#008a5c">
+<label>Bio</label><input id="bio" placeholder="Bio">
+<button onclick="salvar()">Salvar Perfil</button><a href="index.html">Voltar</a><p id="ok"></p><p id="debug" style="font-size:11px;color:#666"></p></div>
+<script>
+let user=sessionStorage.getItem('chatUser');
+document.getElementById('nome').textContent='@'+user;
+let avatarAtual='🐠';
+let sel=document.getElementById('avatar');
+sel.addEventListener('change',()=>{avatarAtual=sel.value;document.getElementById('preview').textContent=avatarAtual;});
+async function carregar(){
+  let d=await (await fetch('/api/perfil?user='+user)).json();
+  let info=await (await fetch('/api/info?user='+user)).json();
+  document.getElementById('debug').textContent='Debug: avatares='+JSON.stringify(info.meus_avatars)+' | premium='+info.premium;
+  avatarAtual=d.avatar||'🐠';
+  document.getElementById('preview').textContent=avatarAtual;
+  document.getElementById('cor').value=d.cor||'#008a5c';
+  document.getElementById('bio').value=d.bio||'';
+  document.getElementById('selo').textContent=info.premium?'👑 PREMIUM':'Sem Premium';
+  if(info.meus_avatars && info.meus_avatars.length>0){
+    document.getElementById('boxDesbloq').style.display='block';
+    let box=document.getElementById('desbloq'); box.innerHTML='';
+    info.meus_avatars.forEach(a=>{
+      let b=document.createElement('button'); b.type='button'; b.textContent=a;
+      if(a===avatarAtual) b.classList.add('sel');
+      b.addEventListener('click',()=>{avatarAtual=a;document.getElementById('preview').textContent=a;document.querySelectorAll('.desbloq button').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');});
+      box.appendChild(b);
+    });
+  }
+}
+async function salvar(){
+  await fetch('/api/perfil',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user,avatar:avatarAtual,cor:document.getElementById('cor').value,bio:document.getElementById('bio').value})});
+  document.getElementById('ok').textContent='✅ Salvo! Vai pro chat.';
+}
+carregar();
+</script></body></html>
